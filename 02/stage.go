@@ -48,21 +48,16 @@ nextlen:
 		}
 		stage.Println("len", l)
 		lastVal := ""
-		match := false
 		for i := 0; i < len(s); i += l {
 			val := fmt.Sprint(s[i : i+l])
 			stage.Println("->", val)
 			if lastVal == "" {
 				lastVal = val
-			} else if lastVal == val {
-				match = true
-			} else {
+			} else if lastVal != val {
 				continue nextlen
 			}
 		}
-		if match {
-			return true
-		}
+		return true
 	}
 	return false
 }
