@@ -46,23 +46,20 @@ func Stage1(input io.Reader) (any, error) {
 	return res, nil
 }
 
-func FindMax2(ints []int, rightRemain int) (int, int) {
-	maxVal := FindMax(ints[:len(ints)-rightRemain])
+func FindMaxIdx(ints []int) (maxVal int, idx int) {
+	maxVal = FindMax(ints)
 	return maxVal, slices.Index(ints, maxVal)
 }
 
-func HandleLine2(line string, numLen int) int {
+func HandleLine2(line string, intLen int) int {
 	ints := StrToInts(line)
 	stage.Println(line, "->", ints)
-	start := 0
+	leftIdx := 0
 	total := 0
-	for i := numLen - 1; i >= 0; i-- {
-		val, idx := FindMax2(ints[start:], i)
-		start += idx + 1
-		// fmt.Println(val, "[", idx, "]")
-		// fmt.Println(val)
-		total *= 10
-		total += val
+	for i := intLen - 1; i >= 0; i-- {
+		val, idx := FindMaxIdx(ints[leftIdx : len(ints)-i])
+		leftIdx += idx + 1
+		total = total*10 + val
 	}
 	return total
 }
