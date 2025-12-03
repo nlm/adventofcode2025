@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"iter"
+	"slices"
 )
 
 // MustLines returns an iteator over the lines read from the io.Reader.
@@ -58,6 +59,21 @@ func MapSlice[T1, T2 any](items []T1, f func(T1) T2) []T2 {
 		res[i] = f(items[i])
 	}
 	return res
+}
+
+// Reduce takes an accumulator, an iterator and a function and returns the result of
+// the subsequent calls of the function on the accumulator and each item in the iterator.
+func Reduce[T1, T2 any](acc T1, items iter.Seq[T2], f func(acc T1, item T2) T1) T1 {
+	for item := range items {
+		acc = f(acc, item)
+	}
+	return acc
+}
+
+// Reduce takes an accumulator, a slice and a function and returns the result of
+// the subsequent calls of the function on the accumulator and each item in the slice.
+func ReduceSlice[T1, T2 any](acc T1, items []T2, f func(acc T1, item T2) T1) T1 {
+	return Reduce(acc, slices.Values(items), f)
 }
 
 // Filter returns an iteartor that outputs each item from the given
