@@ -10,6 +10,9 @@ import (
 )
 
 func StrToInts(s string) []int {
+	// return slices.Collect(iterators.Map(slices.Values([]byte(s)), func(b byte) int {
+	// 	return int(b - '0')
+	// }))
 	ints := make([]int, 0, len(s))
 	for _, c := range s {
 		ints = append(ints, int(c-'0'))
