@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"strings"
 
@@ -16,7 +15,7 @@ func Stage1(input io.Reader) (any, error) {
 	opItems := make([]string, 0)
 	for line := range iterators.MustLines(input) {
 		// intItems = append(intItems, []int{})
-		fmt.Println("newline")
+		stage.Println("newline")
 		idx := 0
 		for _, item := range strings.Split(line, " ") {
 			item := strings.TrimSpace(item)
@@ -24,11 +23,11 @@ func Stage1(input io.Reader) (any, error) {
 			case "":
 				continue
 			case "+", "*":
-				fmt.Printf("operator: '%s'\n", item)
+				stage.Printf("operator: '%s'\n", item)
 				opItems = append(opItems, item)
 			default:
 				val := utils.MustAtoi(item)
-				fmt.Printf("number: '%d'\n", val)
+				stage.Printf("number: '%d'\n", val)
 				if len(intItems) < idx+1 {
 					intItems = append(intItems, []int{})
 				}
@@ -36,9 +35,9 @@ func Stage1(input io.Reader) (any, error) {
 			}
 			idx++
 		}
-		fmt.Println(intItems)
+		stage.Println(intItems)
 	}
-	fmt.Println(opItems)
+	stage.Println(opItems)
 	total := 0
 	for i := range opItems {
 		switch opItems[i] {
