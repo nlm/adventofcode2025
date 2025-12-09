@@ -145,3 +145,35 @@ func AnySlice[T any](slice []T, fn func(T) bool) bool {
 	}
 	return false
 }
+
+// Range is the equivalent of "range n" but also
+// satisfies the iter.Seq[int] interface.
+func Range(n int) iter.Seq[int] {
+	return func(yield func(int) bool) {
+		for i := range n {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+}
+
+// Enumerate returns an iterator over index-value pairs
+// in the sequence in the usual order.
+func Enumerate[T any](seq iter.Seq[T]) iter.Seq2[int, T] {
+	return func(yield func(int, T) bool) {
+		i := 0
+		for v := range seq {
+			if !yield(i, v) {
+				return
+			}
+			i++
+		}
+	}
+}
+
+// Enumerate returns an iterator over index-value pairs
+// in the sequence in the usual order.
+func EnumerateSlice[T any](slice []T) iter.Seq2[int, T] {
+	return slices.All(slice)
+}
