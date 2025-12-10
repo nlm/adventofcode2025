@@ -49,7 +49,7 @@ func cartesianProductIndexes(n, k int) iter.Seq[[]int] {
 // It will allocate "1 + len(elts) to the power of n" slices.
 func CartesianProduct[T any](elts []T, k int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
-		if len(elts) == 0 || k <= 0 || k > len(elts) {
+		if len(elts) == 0 || k <= 0 {
 			return
 		}
 		for indexes := range cartesianProductIndexes(len(elts), k) {

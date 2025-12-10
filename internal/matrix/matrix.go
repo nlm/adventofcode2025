@@ -6,6 +6,8 @@ import (
 	"io"
 	"iter"
 	"strings"
+
+	"github.com/nlm/adventofcode2025/internal/iterators"
 )
 
 type Matrix[T comparable] struct {
@@ -57,6 +59,22 @@ func NewFromReader(input io.Reader) (*Matrix[byte], error) {
 	matrix.Size.X = cols
 	matrix.Size.Y = rows
 	return matrix, nil
+}
+
+func NewFromSeq[T comparable](x, y int, seq iter.Seq[T]) (*Matrix[T], error) {
+	m := New[T](x, y)
+	maxI := 0
+	for i, v := range iterators.Enumerate(seq) {
+		if !(i < len(m.Data)) {
+			return nil, fmt.Errorf("overflow")
+		}
+		m.Data[i] = v
+		maxI = i
+	}
+	if maxI != len(m.Data)-1 {
+		return nil, fmt.Errorf("underflow")
+	}
+	return m, nil
 }
 
 // 1111
@@ -120,28 +138,6 @@ func (m *Matrix[T]) Coords() iter.Seq[Coord] {
 	}
 }
 
-// func (m *Matrix[T]) InsertLineBefore(y int, value T) {
-// 	yLen := m.Len.Y
-// 	// m.Data = append(m.Data, []byte{})
-// 	copy(m.Data[1:2], m.Data[2:3])
-// 	for j := yLen; j > y; j-- {
-// 		m.Data[j] = m.Data[j-1]
-// 	}
-// 	m.Len.Y++
-// }
-
-// func (m *Matrix[T]) InsertColumnBefore(x int, value T) {
-// 	xLen := m.Len.X
-// 	for y := 0; y < m.Len.Y; y++ {
-// 		m.Data[y] = append(m.Data[y], byte(0))
-// 		for i := xLen; i > x; i-- {
-// 			m.Data[y][i] = m.Data[y][i-1]
-// 		}
-// 		m.Data[y][x] = b
-// 	}
-// 	m.Len.X++
-// }
-
 // AtCoord returns the value present at a coordinate.
 // It's the responsibility of the user to check that
 // the coordinate exists within the Matrix with InCoord.
@@ -184,6 +180,15 @@ func SMatrix(m *Matrix[byte]) string {
 	sb := strings.Builder{}
 	for y := 0; y < m.Size.Y; y++ {
 		sb.Write(m.Data[y*m.Size.X : (y+1)*m.Size.X])
+		sb.WriteByte('\n')
+	}
+	return sb.String()
+}
+
+func IMatrix(m *Matrix[int]) string {
+	sb := strings.Builder{}
+	for y := 0; y < m.Size.Y; y++ {
+		sb.WriteString(fmt.Sprintf("%2d ", m.Data[y*m.Size.X:(y+1)*m.Size.X]))
 		sb.WriteByte('\n')
 	}
 	return sb.String()
