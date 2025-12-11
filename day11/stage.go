@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"strings"
 
@@ -22,7 +23,25 @@ func ParseDevice(line string) Device {
 	}
 }
 
-var Memo = make(map[string]int)
+type Memo map[string]int
+
+func (m Memo) FindPath(from, to string, devices map[string]Device) int {
+	total := 0
+	for _, out := range devices[from].Outputs {
+		switch out {
+		case to:
+			total++
+		default:
+			v, ok := m[out]
+			if !ok {
+				v = m.FindPath(out, to, devices)
+				m[out] = v
+			}
+			total += v
+		}
+	}
+	return total
+}
 
 func Stage1(input io.Reader) (any, error) {
 	devices := make(map[string]Device, 0)
@@ -30,29 +49,9 @@ func Stage1(input io.Reader) (any, error) {
 		device := ParseDevice(line)
 		devices[device.Name] = device
 	}
-	clear(Memo)
-	res := FindPath("you", "out", "", devices)
+	m := make(Memo, 0)
+	res := m.FindPath("you", "out", devices)
 	return res, nil
-}
-
-func FindPath(from, to, avoid string, devices map[string]Device) int {
-	total := 0
-	for _, out := range devices[from].Outputs {
-		switch out {
-		case to:
-			total++
-		case avoid:
-			return 0
-		default:
-			v, ok := Memo[out]
-			if !ok {
-				v = FindPath(out, to, avoid, devices)
-				Memo[out] = v
-			}
-			total += v
-		}
-	}
-	return total
 }
 
 func Stage2(input io.Reader) (any, error) {
@@ -61,18 +60,27 @@ func Stage2(input io.Reader) (any, error) {
 		device := ParseDevice(line)
 		devices[device.Name] = device
 	}
-	clear(Memo)
-	dacOut := FindPath("dac", "out", "fft", devices)
-	clear(Memo)
-	fftDac := FindPath("fft", "dac", "", devices)
-	clear(Memo)
-	fftOut := FindPath("fft", "out", "dac", devices)
-	clear(Memo)
-	dacFft := FindPath("dac", "fft", "", devices)
-	clear(Memo)
-	svrFft := FindPath("svr", "fft", "dac", devices)
-	clear(Memo)
-	svrDac := FindPath("svr", "dac", "fft", devices)
 
-	return svrDac*dacFft*fftOut + svrFft*fftDac*dacOut, nil
+	m := make(Memo, 0)
+	clear(m)
+	fftDac := m.FindPath("fft", "dac", devices)
+	if fftDac != 0 {
+		clear(m)
+		svrFft := m.FindPath("svr", "fft", devices)
+		clear(m)
+		dacOut := m.FindPath("dac", "out", devices)
+		return svrFft * fftDac * dacOut, nil
+	}
+
+	clear(m)
+	dacFft := m.FindPath("dac", "fft", devices)
+	if dacFft != 0 {
+		clear(m)
+		svrDac := m.FindPath("svr", "dac", devices)
+		clear(m)
+		fftOut := m.FindPath("fft", "out", devices)
+		return svrDac * dacFft * fftOut, nil
+	}
+
+	return 0, fmt.Errorf("no solution found")
 }
