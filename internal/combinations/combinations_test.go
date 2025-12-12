@@ -14,11 +14,15 @@ func TestCartesianProduct(t *testing.T) {
 		K    int
 		Res  [][]string
 	}{
-		{[]string{}, 0, nil},
-		{[]string{}, 2, nil},
-		{[]string{"A", "B", "C"}, 4, nil},
-		{[]string{"A", "B"}, 2, [][]string{{"A", "A"}, {"A", "B"}, {"B", "A"}, {"B", "B"}}},
-		{[]string{"A", "B", "C"}, 2, [][]string{
+		{[]string{}, 0, nil},                       // k == 0 -> generates nothing
+		{[]string{}, 2, nil},                       // len(items) == 0 -> generates nothing
+		{[]string{"A"}, 2, [][]string{{"A", "A"}}}, // k > len(items)
+		{[]string{"A", "B"}, 3, [][]string{ // k > len(items)
+			{"A", "A", "A"}, {"A", "A", "B"}, {"A", "B", "A"}, {"A", "B", "B"},
+			{"B", "A", "A"}, {"B", "A", "B"}, {"B", "B", "A"}, {"B", "B", "B"},
+		}},
+		{[]string{"A", "B"}, 2, [][]string{{"A", "A"}, {"A", "B"}, {"B", "A"}, {"B", "B"}}}, // k == len(items)
+		{[]string{"A", "B", "C"}, 2, [][]string{ // k <  len(items)
 			{"A", "A"}, {"A", "B"}, {"A", "C"},
 			{"B", "A"}, {"B", "B"}, {"B", "C"},
 			{"C", "A"}, {"C", "B"}, {"C", "C"},
@@ -40,7 +44,7 @@ func TestCombinations(t *testing.T) {
 	}{
 		{[]string{}, 0, nil},
 		{[]string{}, 2, nil},
-		{[]string{"A", "B", "C"}, 4, nil},
+		{[]string{"A"}, 2, nil},
 		{[]string{"A", "B"}, 2, [][]string{{"A", "B"}}},
 		{[]string{"A", "B", "C"}, 2, [][]string{{"A", "B"}, {"A", "C"}, {"B", "C"}}},
 		{[]string{"A", "B", "C", "D"}, 2, [][]string{{"A", "B"}, {"A", "C"}, {"A", "D"}, {"B", "C"}, {"B", "D"}, {"C", "D"}}},
